@@ -1,0 +1,48 @@
+name: Flutter Web Build and Artifact Upload
+
+on:
+  push:
+    branches:
+      - main # Змінити на master, якщо ваша основна гілка називається master
+
+jobs:
+  build_web:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # Вивантажуємо код з репозиторію
+
+      - name: Setup Flutter
+        # Використовуємо офіційний екшен для налаштування Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable' # Використовуємо стабільний канал Flutter
+
+      - name: Get Flutter dependencies
+        # Завантажуємо всі пакети з pubspec.yaml
+        run: flutter pub get
+
+      - name: Build Flutter Web Release
+        # Створюємо оптимізовану релізну збірку для вебу
+        run: flutter build web --release
+
+      - name: Upload Web Artifact
+        # Зберігаємо згенеровану папку build/web як артефакт
+        # Ви можете завантажити цей архів через інтерфейс GitHub Actions
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+          
+      # --- Додатковий крок: Автоматичний деплой на GitHub Pages ---
+      # Якщо ви захочете використати вбудований хостинг GitHub Pages:
+      - name: Deploy to GitHub Pages
+        if: success()
+        uses: actions/deploy-pages@v4
+        with:
+          # Вказуємо, що деплой потрібно робити з артефакту, 
+          # який ми завантажили на попередньому кроці.
+          # Для цього в налаштуваннях репозиторію (Settings -> Pages)
+          # потрібно вказати джерело (Source) як "GitHub Actions".
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/web
