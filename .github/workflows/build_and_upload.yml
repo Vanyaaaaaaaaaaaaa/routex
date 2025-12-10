@@ -1,18 +1,18 @@
-name: Flutter Web Build and Deploy to GitHub Pages
+name: Flutter Web Build and Deploy to gh-pages
 
 on:
   push:
     branches:
-      - main # Змінити на master, якщо потрібно
+      - main # Змінити на master, якщо ваша основна гілка називається master
 
-# Додайте цей блок permissions на рівні job! Це критично.
+# Тут не потрібні спеціальні permissions, але їх наявність не завадить
 permissions:
-  contents: read # Дозвіл на читання коду
-  pages: write   # Дозвіл на запис (деплой) на GitHub Pages
-  id-token: write # Дозвіл для OIDC-токенів, потрібен для actions/deploy-pages@v4
+  contents: write # Потрібен для peaceiris/actions-gh-pages, щоб створити нову гілку
+  pages: write   
+  id-token: write 
 
 jobs:
-  build_web:
+  build_and_deploy:
     runs-on: ubuntu-latest
     
     steps:
@@ -30,19 +30,13 @@ jobs:
       - name: Build Flutter Web Release
         run: flutter build web --release
 
-      - name: Setup Pages
-        # Екшен для налаштування середовища GitHub Pages.
-        # Це також виправляє попередження про невідомий input 'path'
-        uses: actions/configure-pages@v4
-
-      - name: Upload Web Artifact
-        # Цей екшен завантажує папку 'build/web' і дає їй назву 'github-pages'
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to GitHub Pages (via gh-pages branch)
+        # Це перевірений екшен, який сам деплоїть у гілку gh-pages
+        uses: peaceiris/actions-gh-pages@v3 
         with:
-          path: 'build/web' # Зверніть увагу, що path використовується тут (upload), а не в deploy
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        # Екшен deploy-pages тепер використовує permissions, встановлені вище, 
-        # і не вимагає додаткових параметрів 'token' або 'path'.
-        uses: actions/deploy-pages@v4
+          # Використовуємо вбудований токен для авторизації
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Вказуємо, яку папку публікувати
+          publish_dir: ./build/web
+          # Вказуємо гілку, в яку буде здійснено деплой
+          publish_branch: gh-pages
