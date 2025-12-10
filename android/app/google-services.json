@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "569906670096",
+    "project_id": "gumenix-428d9",
+    "storage_bucket": "gumenix-428d9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569906670096:android:687a71d9ae3148469cb895",
+        "android_client_info": {
+          "package_name": "com.example.routex_new"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBorx4s8XOHMgIQS54bec9uxDp8biOg8w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
