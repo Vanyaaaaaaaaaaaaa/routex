@@ -16,29 +16,50 @@ class _AuthDialogState extends State<AuthDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      title: const Text("Авторизація"),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      title: const Text(
+        "Авторизація",
+        style: TextStyle(fontWeight: FontWeight.w900),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
             controller: emailCtrl,
-            decoration: const InputDecoration(labelText: "Email"),
+            decoration: InputDecoration(
+              labelText: "Email",
+              prefixIcon: const Icon(Icons.email_outlined),
+              filled: true,
+              fillColor: Colors.black.withOpacity(0.05),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           TextField(
             controller: passCtrl,
             obscureText: true,
-            decoration: const InputDecoration(labelText: "Пароль"),
+            decoration: InputDecoration(
+              labelText: "Пароль",
+              prefixIcon: const Icon(Icons.lock_outline),
+              filled: true,
+              fillColor: Colors.black.withOpacity(0.05),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+            ),
           ),
         ],
       ),
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       actions: [
         TextButton(
-          child: const Text("Закрити"),
+          child: const Text("Скасувати", style: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w600)),
           onPressed: () => Navigator.pop(context),
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
           onPressed: isLoading
               ? null
               : () async {
@@ -69,9 +90,9 @@ class _AuthDialogState extends State<AuthDialog> {
               ? const SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                 )
-              : const Text("Увійти / Зареєструватися"),
+              : const Text("Продовжити", style: TextStyle(fontWeight: FontWeight.w700)),
         ),
       ],
     );

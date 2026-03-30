@@ -9,23 +9,23 @@ class AllTripsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ===== Заголовок + лупа =====
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    "Всі поїздки",
+                    "Пошук поїздок",
                     style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black87,
                     ),
                   ),
                   GestureDetector(
@@ -36,19 +36,19 @@ class AllTripsPage extends StatelessWidget {
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            blurRadius: 10,
-                            color: Colors.black12,
-                            offset: const Offset(0, 4),
+                            blurRadius: 15,
+                            color: Colors.black.withOpacity(0.08),
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.search, size: 24),
+                      child: const Icon(Icons.search, size: 26, color: Colors.black),
                     ),
                   ),
                 ],
@@ -61,7 +61,7 @@ class AllTripsPage extends StatelessWidget {
                 stream: TripService.allTrips(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator(color: Colors.black));
                   }
 
                   final docs = snapshot.data!.docs;
@@ -69,7 +69,7 @@ class AllTripsPage extends StatelessWidget {
                     return const Center(
                       child: Text(
                         "Поки немає поїздок 😕",
-                        style: TextStyle(fontSize: 16, color: Colors.black45),
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                     );
                   }
@@ -77,7 +77,7 @@ class AllTripsPage extends StatelessWidget {
                   return ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     itemCount: docs.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    separatorBuilder: (_, __) => const SizedBox(height: 4),
                     itemBuilder: (context, i) {
                       final doc = docs[i];
                       final data = doc.data() as Map<String, dynamic>;

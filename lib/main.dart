@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'screens/main_tabs.dart';
+import 'screens/auth_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -21,48 +21,93 @@ class RouteXApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
+        brightness: Brightness.light,
 
-        // 🎨 Світлий сине-білий UI
-        scaffoldBackgroundColor: const Color(0xFFE8F0FE),
+        // 🎨 Світлий сучасний UI
+        scaffoldBackgroundColor: const Color(0xFFF5F7FA),
 
-        colorScheme: const ColorScheme.light(
-          primary: Color(0xFFD0DCFA),
-          secondary: Color(0xFF1F2A44),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.black,
+          brightness: Brightness.light,
+          primary: Colors.black,
+          onPrimary: Colors.white,
+          surface: Colors.white,
+          onSurface: Colors.black,
+          secondary: Colors.grey[800]!,
         ),
 
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFE8F0FE),
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
           elevation: 0,
+          centerTitle: true,
           titleTextStyle: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2A44),
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: Colors.black,
           ),
-          iconTheme: IconThemeData(color: Color(0xFF1F2A44)),
+          iconTheme: IconThemeData(color: Colors.black),
         ),
 
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(const Color(0xFF1F2A44)),
-            foregroundColor: WidgetStateProperty.all(Colors.white),
-            padding: WidgetStateProperty.all(
-              EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-            ),
-            shape: WidgetStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
 
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFFE8F0FE),
-          selectedItemColor: Color(0xFF1F2A44),
-          unselectedItemColor: Colors.black45,
+          backgroundColor: Colors.white,
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.grey,
+          elevation: 8,
+        ),
+
+        cardTheme: CardThemeData(
+          color: Colors.white,
+          elevation: 2,
+          shadowColor: Colors.black12,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+        ),
+
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.black12),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.black12),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.black, width: 1.5),
+          ),
         ),
       ),
-      home: const MainTabs(),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          if (snapshot.hasData) {
+            return const MainTabs();
+          }
+          return const AuthPage();
+        },
+      ),
     );
   }
 }

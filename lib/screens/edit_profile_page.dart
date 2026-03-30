@@ -44,68 +44,62 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
         title: const Text(
           "Редагування профілю",
           style: TextStyle(
             fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1B1E28),
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Ім’я",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            _inputCard(
-              controller: nameController,
-              hint: "Введіть ім’я",
-              icon: Icons.person,
-            ),
-            const SizedBox(height: 20),
-            const Text("Про себе",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            _inputCard(
-              controller: bioController,
-              hint: "Короткий опис",
-              icon: Icons.edit,
-              maxLines: 3,
-            ),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF007BFF),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                onPressed: saveProfile,
-                child: const Text(
-                  "Зберегти",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Ваше ім’я",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+              const SizedBox(height: 12),
+              _inputCard(
+                controller: nameController,
+                hint: "Введіть ім’я",
+                icon: Icons.person_outline,
               ),
-            )
-          ],
+              const SizedBox(height: 24),
+              const Text("Про себе",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+              const SizedBox(height: 12),
+              _inputCard(
+                controller: bioController,
+                hint: "Розкажіть про себе",
+                icon: Icons.edit_note_outlined,
+                maxLines: 3,
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: saveProfile,
+                  child: const Text(
+                    "Зберегти зміни",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
-      ),
     );
   }
 
@@ -118,24 +112,26 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 3),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           )
         ],
       ),
       child: TextField(
         maxLines: maxLines,
         controller: controller,
+        style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
         decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.blue),
+          prefixIcon: Icon(icon, color: Colors.black54, size: 22),
           hintText: hint,
+          hintStyle: const TextStyle(color: Colors.grey, fontSize: 15),
           border: InputBorder.none,
           contentPadding:
-              const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         ),
       ),
     );

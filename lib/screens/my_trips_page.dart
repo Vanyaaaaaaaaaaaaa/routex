@@ -17,38 +17,40 @@ class _MyTripsPageState extends State<MyTripsPage> {
 
   Stream<QuerySnapshot> _driverTrips() {
     final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return const Stream.empty();
     return FirebaseFirestore.instance
         .collection('trips')
-        .where('driverId', isEqualTo: user?.uid)
-        .orderBy('createdAt', descending: true)
+        .where('driverId', isEqualTo: user.uid)
         .snapshots();
   }
 
   Stream<QuerySnapshot> _passengerBookings() {
     final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return const Stream.empty();
     return FirebaseFirestore.instance
-        .collectionGroup('bookings')
-        .where("userId", isEqualTo: user?.uid)
+        .collection('bookings')
+        .where("userId", isEqualTo: user.uid)
         .snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F4FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
             // Заголовок
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Мої поїздки",
                   style: TextStyle(
                     fontSize: 28,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
                   ),
                 ),
               ),
@@ -59,8 +61,8 @@ class _MyTripsPageState extends State<MyTripsPage> {
               margin: const EdgeInsets.symmetric(horizontal: 20),
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                color: Colors.black.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
                 children: [
@@ -78,9 +80,15 @@ class _MyTripsPageState extends State<MyTripsPage> {
                 stream:
                     selectedTab == 0 ? _driverTrips() : _passengerBookings(),
                 builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text("Помилка завантаження: ${snapshot.error}",
+                          style: const TextStyle(color: Colors.red)),
+                    );
+                  }
                   if (!snapshot.hasData) {
                     return const Center(
-                      child: CircularProgressIndicator(color: Colors.blue),
+                      child: CircularProgressIndicator(),
                     );
                   }
 
@@ -88,14 +96,15 @@ class _MyTripsPageState extends State<MyTripsPage> {
 
                   if (docs.isEmpty) {
                     return const Center(
-                      child: Text("Поки немає поїздок"),
+                      child: Text("Поки немає поїздок 🚗",
+                          style: TextStyle(color: Colors.blueGrey)),
                     );
                   }
 
                   return ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: docs.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, i) {
                       final data = docs[i].data() as Map<String, dynamic>;
 
@@ -105,7 +114,10 @@ class _MyTripsPageState extends State<MyTripsPage> {
                       return TripCard(
                         data: data,
                         docId: docId,
+                        showButton: false,
+                        showOnlyFreeUp: selectedTab == 1,
                       );
+
                     },
                   );
                 },
@@ -118,11 +130,13 @@ class _MyTripsPageState extends State<MyTripsPage> {
       // Плаваюча кнопка + тільки для "Я водій"
       floatingActionButton: selectedTab == 0
           ? FloatingActionButton(
-              backgroundColor: const Color(0xFF007BFF),
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              elevation: 4,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(18),
               ),
-              child: const Icon(Icons.add, size: 32),
+              child: const Icon(Icons.add, size: 30),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -144,17 +158,26 @@ class _MyTripsPageState extends State<MyTripsPage> {
       child: GestureDetector(
         onTap: () => setState(() => selectedTab = tab),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: active ? const Color(0xFF007BFF) : Colors.white,
+            color: active ? Colors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
+            boxShadow: active
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : null,
           ),
           child: Text(
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: active ? Colors.white : Colors.black87,
-              fontWeight: FontWeight.w600,
+              color: active ? Colors.black : Colors.grey,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ),
