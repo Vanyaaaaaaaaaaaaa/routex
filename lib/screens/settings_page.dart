@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/trip_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -10,80 +10,37 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final user = FirebaseAuth.instance.currentUser;
-  final passwordController = TextEditingController();
-  
   String? selectedCity;
   bool notificationsEnabled = true;
   String selectedLanguage = "Українська";
-
-  final List<String> cities = [
-    "Київ", "Яворів", "Львів", "Одеса", "Дніпро", "Харків", 
-    "Івано-Франківськ", "Тернопіль", "Запоріжжя", "Вінниця", "Полтава", "Інше"
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserSettings();
-  }
-
-  Future<void> _loadUserSettings() async {
-    if (user != null) {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user!.uid)
-          .get();
-      if (doc.exists) {
-        setState(() {
-          selectedCity = doc.data()?['city'];
-          notificationsEnabled = doc.data()?['notifications'] ?? true;
-          selectedLanguage = doc.data()?['language'] ?? "Українська";
-        });
-      }
-    }
-  }
+  final List<String> cities = ["Київ", "Львів", "Одеса", "Харків", "Дніпро", "Івано-Франківськ", "Вінниця"];
+  final passwordController = TextEditingController();
 
   Future<void> _saveSettings() async {
-    if (user == null) return;
-    try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user!.uid)
-          .set({
-            'city': selectedCity,
-            'notifications': notificationsEnabled,
-            'language': selectedLanguage,
-          }, SetOptions(merge: true));
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Налаштування збережено ✔")),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Помилка: $e")),
-        );
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Налаштування збережено! ⚙️")),
+    );
   }
 
   Future<void> _changePassword() async {
-    if (user == null || passwordController.text.isEmpty) return;
+    if (passwordController.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Пароль має бути не менше 6 символів")),
+      );
+      return;
+    }
     try {
-      await user!.updatePassword(passwordController.text.trim());
+      await FirebaseAuth.instance.currentUser?.updatePassword(passwordController.text);
       passwordController.clear();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Пароль змінено ✔")),
+          const SnackBar(content: Text("Пароль успішно змінено! 🛡️")),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Помилка: $e. Спробуйте перезайти в акаунт.")),
+          SnackBar(content: Text("Помилка при зміні пароля: $e")),
         );
       }
     }
@@ -94,7 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text("Видалити акаунт?"),
-        content: const Text("Ця дія є незворотною. Всі ваші дані будуть видалені."),
+        content: const Text("Це неможливо буде скасувати. Всі ваші дані буде видалено."),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Скасувати")),
           TextButton(
@@ -105,15 +62,50 @@ class _SettingsPageState extends State<SettingsPage> {
       )
     );
 
-    if (confirm == true && user != null) {
+    if (confirm == true) {
       try {
-        await FirebaseFirestore.instance.collection('users').doc(user!.uid).delete();
-        await user!.delete();
-        if (mounted) Navigator.pop(context);
+        await FirebaseAuth.instance.currentUser?.delete();
+        if (mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Помилка: $e. Потрібна свіжа авторизація.")),
+            SnackBar(content: Text("Спершу перезайдіть у застосунок для видалення: $e")),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _seedDatabase() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Оновити поїздки?"),
+        content: const Text("Це видалить кілька старих поїздок та додасть нові цікаві маршрути."),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Скасувати")),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true), 
+            child: const Text("Оновити", style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold))
+          ),
+        ],
+      )
+    );
+
+    if (confirm == true) {
+      try {
+        await TripService.seedData();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Базу даних успішно оновлено! 🚀")),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Помилка при оновленні: $e")),
           );
         }
       }
@@ -132,7 +124,27 @@ class _SettingsPageState extends State<SettingsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- Місто ---
+              // --- Керування даними (НОВА СЕКЦІЯ) ---
+              const Text("Керування даними",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _seedDatabase,
+                  icon: const Icon(Icons.refresh, color: Colors.black),
+                  label: const Text("Скинути та додати нові поїздки", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.black),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 32),
+              const Divider(color: Colors.black12),
+              const SizedBox(height: 12),
               const Text("Ваше місто",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87)),
               const SizedBox(height: 12),

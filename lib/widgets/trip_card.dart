@@ -133,6 +133,15 @@ class TripCard extends StatelessWidget {
                       "${data['seats']} місць",
                       style: const TextStyle(fontSize: 14, color: Colors.black54),
                     ),
+                    if (data['lat'] != null && data['lng'] != null) ...[
+                      const SizedBox(width: 16),
+                      const Icon(Icons.map_outlined, size: 18, color: Colors.black54),
+                      const SizedBox(width: 4),
+                      const Text(
+                        "Є карта",
+                        style: TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ],
                 ),
 
